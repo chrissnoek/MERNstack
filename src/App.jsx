@@ -1,4 +1,4 @@
-const cont = ["Africa", "America", "Asia"];
+const cont = ["Africa", "America", "AsiaAA"];
 const helloCont = Array.from(cont, c => `Hello ${c}`);
 const message = helloCont.join(" ");
 
@@ -8,4 +8,5 @@ const element = (
   </div>
 );
 
+// render
 ReactDOM.render(element, document.getElementById("content"));
