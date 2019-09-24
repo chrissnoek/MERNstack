@@ -18,34 +18,136 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var HelloWorld =
+var IssueFilter =
 /*#__PURE__*/
 function (_React$Component) {
-  _inherits(HelloWorld, _React$Component);
+  _inherits(IssueFilter, _React$Component);
 
-  function HelloWorld() {
-    _classCallCheck(this, HelloWorld);
+  function IssueFilter() {
+    _classCallCheck(this, IssueFilter);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(HelloWorld).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(IssueFilter).apply(this, arguments));
   }
 
-  _createClass(HelloWorld, [{
+  _createClass(IssueFilter, [{
     key: "render",
     value: function render() {
-      var cont = ["Africa", "America", "AsiaAAAA"];
-      var helloCont = Array.from(cont, function (c) {
-        return "Hello ".concat(c);
-      });
-      var message = helloCont.join(" ");
-      return React.createElement("div", {
-        title: "Outer div"
-      }, React.createElement("h1", null, message));
+      return React.createElement("div", null, "This is a placholder for the issueFilter");
     }
   }]);
 
-  return HelloWorld;
+  return IssueFilter;
 }(React.Component);
 
-var element = React.createElement(HelloWorld, null); // render
+var IssueRow =
+/*#__PURE__*/
+function (_React$Component2) {
+  _inherits(IssueRow, _React$Component2);
+
+  function IssueRow() {
+    _classCallCheck(this, IssueRow);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(IssueRow).apply(this, arguments));
+  }
+
+  _createClass(IssueRow, [{
+    key: "render",
+    value: function render() {
+      var style = this.props.rowStyle;
+      return React.createElement("tr", null, React.createElement("td", {
+        style: style
+      }, this.props.issueId), React.createElement("td", {
+        style: style
+      }, this.props.issueTitle));
+    }
+  }]);
+
+  return IssueRow;
+}(React.Component);
+
+var IssueTable =
+/*#__PURE__*/
+function (_React$Component3) {
+  _inherits(IssueTable, _React$Component3);
+
+  function IssueTable() {
+    _classCallCheck(this, IssueTable);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(IssueTable).apply(this, arguments));
+  }
+
+  _createClass(IssueTable, [{
+    key: "render",
+    value: function render() {
+      var rowStyle = {
+        border: "1px solid silver",
+        padding: 4
+      };
+      return React.createElement("table", {
+        style: {
+          borderCollapse: "collapse"
+        }
+      }, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", {
+        style: rowStyle
+      }, "ID"), React.createElement("th", {
+        style: rowStyle
+      }, "Title"))), React.createElement("tbody", null, React.createElement(IssueRow, {
+        issueTitle: "Title of the first issue",
+        issueId: 1,
+        rowStyle: rowStyle
+      }), React.createElement(IssueRow, {
+        issueTitle: "Title of the second issue",
+        issueId: 2,
+        rowStyle: rowStyle
+      })));
+    }
+  }]);
+
+  return IssueTable;
+}(React.Component);
+
+var IssueAdd =
+/*#__PURE__*/
+function (_React$Component4) {
+  _inherits(IssueAdd, _React$Component4);
+
+  function IssueAdd() {
+    _classCallCheck(this, IssueAdd);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(IssueAdd).apply(this, arguments));
+  }
+
+  _createClass(IssueAdd, [{
+    key: "render",
+    value: function render() {
+      return React.createElement("div", null, "This is a placholder for the IssueAdd");
+    }
+  }]);
+
+  return IssueAdd;
+}(React.Component);
+
+var IssueList =
+/*#__PURE__*/
+function (_React$Component5) {
+  _inherits(IssueList, _React$Component5);
+
+  function IssueList() {
+    _classCallCheck(this, IssueList);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(IssueList).apply(this, arguments));
+  }
+
+  _createClass(IssueList, [{
+    key: "render",
+    value: function render() {
+      return React.createElement(React.Fragment, null, React.createElement("h1", null, "Issue Tracker"), React.createElement(IssueFilter, null), React.createElement("hr", null), React.createElement(IssueTable, null), React.createElement("hr", null), React.createElement(IssueAdd, null));
+    }
+  }]);
+
+  return IssueList;
+}(React.Component);
+
+var element = React.createElement(IssueList, null); // render
 
 ReactDOM.render(element, document.getElementById("contents"));
