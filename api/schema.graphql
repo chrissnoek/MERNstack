@@ -1,0 +1,53 @@
+##Define a custom graphql datatype, called GraphQLDate, which is declared in server.js
+scalar GraphQLDate
+
+## a enum is a validation type, so the StatusType can only be one of the following values
+## Every value is a string
+enum StatusType {
+  New
+  Assigned
+  Fixed
+  Closed
+}
+
+## Define all the fields and fieldtypes for an Issue, ! stands for required
+## StatusType is a enum defined above, which is a string
+type Issue {
+  _id: ID!
+  id: Int!
+  title: String!
+  status: StatusType!
+  owner: String
+  effort: Int
+  created: GraphQLDate!
+  due: GraphQLDate
+  description:String
+}
+
+## the Issue inputs is for a 'create new issue' request to the server
+## StatusType is a enum defined above, which is a string
+"Toned down Issue, used as inputs, without server generated values."
+input IssueInputs {
+  title: String!
+  "Optional, if not stupplied, will be set to 'New'"
+  status: StatusType = New
+  owner: String
+  effort: Int
+  due: GraphQLDate
+  description:String
+}
+
+### Top level declarations
+type Query {
+  about: String!
+  issueList(
+    status: StatusType
+    effortMin:Int
+    effortMax:Int
+    ): [Issue!]!
+  issue(id:Int!): Issue!
+}
+type Mutation {
+  setAboutMessage(message: String!): String
+  issueAdd(issue: IssueInputs!): Issue!
+}

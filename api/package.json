@@ -1,12 +1,11 @@
 {
-  "name": "mernstack",
+  "name": "mernstack-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --watch server server/server.js",
-    "compile": "babel src --out-dir public",
-    "watch": "babel src --out-dir public --watch --verbose",
+    "start": "nodemon -e js,graphql -w . -w .env server.js",
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,13 +19,20 @@
   },
   "homepage": "https://github.com/chrissnoek/MERNstack#readme",
   "dependencies": {
+    "apollo-server-express": "^2.9.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "graphql": "^14.5.8",
+    "mongodb": "^3.3.5",
     "nodemon": "^1.19.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
-    "@babel/preset-react": "^7.0.0"
+    "@babel/preset-react": "^7.0.0",
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2"
   }
 }

@@ -1,0 +1,21 @@
+{
+  "extends": "airbnb-base",
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "import/extentions": [
+      "error",
+      "always",
+      {
+        "ignorePackages": true
+      }
+    ],
+    "quotes": [
+      1,
+      "double"
+    ],
+    "no-console": "off",
+    "operator-linebreak": "off"
+  }
+}
