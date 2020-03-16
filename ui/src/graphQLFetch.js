@@ -15,7 +15,7 @@ export default async function graphQLFetch(query, variables = {}) {
         const body = await response.text();
         const result = JSON.parse(body, jsonDateReviver);
 
-        // alert the error message whenthe result is containing erros
+        // alert the error message when the result is containing erros
         if (result.errors) {
             const error = result.errors[0];
             if (error.extensions.code === "BAD_USER_INPUT") {
@@ -23,7 +23,7 @@ export default async function graphQLFetch(query, variables = {}) {
                 const details = error.extensions.exception.errors.join("\n ");
                 alert(`${error.message}\n ${details}`);
             } else {
-                alert(`${error.extensions.code}\n ${error.message}`);
+                //alert(`${error.extensions.code}\n ${error.message}`);
             }
         }
         return result.data;
