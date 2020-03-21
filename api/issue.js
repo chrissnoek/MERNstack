@@ -7,6 +7,38 @@ async function get(_, { id }) {
     return issue;
 }
 
+async function update(_, { id, changes }) {
+    const db = getDb();
+
+    // check if there are changes to fields to validate them
+    if (changes.title || changes.status || changes.owner) {
+        const issue = await db.collection('issues').findOne({ id });
+        // copy and merge changed values to the target object ()
+        Object.assign(issue, changes);
+        validate(issue);
+    }
+    // now update the issue in db
+    await db.collection('issues').updateOne({ id }, { $set: changes });
+    const savedIssue = await db.collection('issues').findOne({ id });
+    return savedIssue;
+}
+
+async function remove(_, { id }) {
+    const db = getDb();
+    // find issue
+    const issue = await db.collection('issues').findOne({ id });
+    if (!issue) return false;
+    issue.deleted = new Date();
+
+    // store deleted issue in new collection so we can retrieve them later
+    let result = await db.collection('deleted_issues').insertOne({ issue });
+    if (result.insertedId) {
+        result = await db.collection('issues').removeOne({ id });
+        return result.deletedCount === 1;
+    }
+    return false;
+}
+
 async function list(_, { status, effortMin, effortMax }) {
     const db = getDb();
     const filter = {};
@@ -50,4 +82,5 @@ async function add(_, { issue }) {
     return savedIssue;
 }
 
-module.exports = { list, add, get };
+
+module.exports = { list, add, get, update, delete: remove };

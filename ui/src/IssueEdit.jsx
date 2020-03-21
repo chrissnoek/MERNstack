@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import graphQLFetch from './graphQLFetch.js';
 import NumInput from './NumInput.jsx';
 import DateInput from './DateInput.jsx';
+import TextInput from './TextInput.jsx';
 
 export default class IssueEdit extends React.Component {
     constructor() {
@@ -37,10 +38,33 @@ export default class IssueEdit extends React.Component {
         }));
     }
 
-    handleSubmit(e) {
+    async handleSubmit(e) {
         e.preventDefault();
-        const { issue } = this.state;
-        console.log(issue); // eslint-disable-line no-console
+        const { issue, invalidFields } = this.state;
+
+        // count the length of keys in invalidFields object, if so there are invalid fiels
+        if (Object.keys(invalidFields).length !== 0) return;
+
+        const query = `mutation issueUpdate($id:Int!, $changes: IssueUpdateInputs!){
+            issueUpdate(id:$id, changes:$changes) {
+              id title status owner effort created due description
+            }
+        }`;
+
+        // get id and created from the issue, and catch rest in changes variable
+        // because we dont want to adjust id and created
+        const { id, created, ...changes } = issue;
+        const data = await graphQLFetch(query, { id, changes });
+        if (data) {
+            this.setState({ issue: data.issueUpdate });
+            alert('Updated issue successfully');
+        }
+
+
+
+
+
+
     }
 
     onValidityChange(event, valid) {
@@ -64,15 +88,9 @@ export default class IssueEdit extends React.Component {
         id = parseInt(id);
         const data = await graphQLFetch(query, { id });
 
-        if (data) {
-            const { issue } = data;
-            console.log('fetched isse', issue);
-            issue.owner = issue.owner != null ? issue.owner : '';
-            issue.description = issue.description != null ? issue.description : '';
-            this.setState({ issue, invalidFields: {} });
-        } else {
-            this.setState({ issue: {}, invalidFields: {} });
-        }
+
+        this.setState({ issue: data ? data.issue : {}, invalidFields: {} });
+
     }
 
     render() {
@@ -123,10 +141,11 @@ export default class IssueEdit extends React.Component {
                         <tr>
                             <td>Owner:</td>
                             <td>
-                                <input
+                                <TextInput
                                     name="owner"
                                     value={owner}
                                     onChange={this.onChange}
+                                    key={id}
                                 />
                             </td>
                         </tr>
@@ -156,23 +175,26 @@ export default class IssueEdit extends React.Component {
                         <tr>
                             <td>Title:</td>
                             <td>
-                                <input
+                                <TextInput
                                     size={50}
                                     name="title"
                                     value={title}
                                     onChange={this.onChange}
+                                    key={id}
                                 />
                             </td>
                         </tr>
                         <tr>
                             <td>Description:</td>
                             <td>
-                                <textarea
+                                <TextInput
+                                    tag="textarea"
                                     rows={8}
                                     cols={50}
                                     name="description"
                                     value={description}
                                     onChange={this.onChange}
+                                    key={id}
                                 />
                             </td>
                         </tr>
