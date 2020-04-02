@@ -1,4 +1,6 @@
 import React from 'react';
+import { Form, Button } from 'react-bootstrap';
+
 export default class IssueAdd extends React.Component {
     constructor() {
         super();
@@ -22,16 +24,21 @@ export default class IssueAdd extends React.Component {
 
     render() {
         return (
-            <form name="issueAdd" onSubmit={this.handleSubmit}>
-                <input
-                    type="text"
-                    name="owner"
-                    placeholder="Owner"
-                    onChange={this.handleChange}
-                />
-                <input type="text" name="title" placeholder="Title" />
-                <button type="submit">Add</button>
-            </form>
+            <Form inline name="issueAdd" onSubmit={this.handleSubmit}>
+                <Form.Group>
+                    <Form.Label>Owner:</Form.Label>
+                    <Form.Control
+                        name="owner"
+                        placeholder="Owner"
+                        onChange={this.handleChange}
+                    />
+                </Form.Group>
+                <Form.Group>
+                    <Form.Label>Title:</Form.Label>
+                    <Form.Control name="title" placeholder="Title" />
+                </Form.Group>
+                <Button variation="primary" size="sm" type="submit">Add</Button>
+            </Form>
         );
     }
 }

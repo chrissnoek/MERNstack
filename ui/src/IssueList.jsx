@@ -7,9 +7,10 @@
 import React from 'react';
 import IssueFilter from './IssueFilter.jsx';
 import IssueTable from './IssueTable.jsx';
-import IssueAdd from './IssueAdd.jsx';
 import IssueDetail from './IssueDetail.jsx';
 import graphQLFetch from './graphQLFetch.js';
+import { Card } from 'react-bootstrap';
+import Toast from './Toast.jsx';
 
 // url search param polyfill for ie
 import URLSearchParams from 'url-search-params';
@@ -19,11 +20,16 @@ export default class IssueList extends React.Component {
     constructor() {
         super();
         this.state = {
-            issues: []
-        };
-        this.createIssue = this.createIssue.bind(this);
+            issues: [],
+            toastVisible: false,
+            toastMessage: '',
+            toastType: 'info'
+        }
         this.closeIssue = this.closeIssue.bind(this);
         this.deleteIssue = this.deleteIssue.bind(this);
+        this.showSuccess = this.showSuccess.bind(this);
+        this.showError = this.showError.bind(this);
+        this.dismissToast = this.dismissToast.bind(this);
     }
 
     componentDidMount() {
@@ -64,34 +70,13 @@ export default class IssueList extends React.Component {
         }
       }`;
 
-        const data = await graphQLFetch(query, vars);
+        const data = await graphQLFetch(query, vars, this.showError);
         if (data) {
             this.setState({ issues: data.issueList });
         }
     }
 
-    async createIssue(issue) {
-        // graphQL template to create issue in database, where $issue is the variable of the issue
-        const query = `mutation issueAdd($issue: IssueInputs!) {
-        issueAdd(issue:$issue) {
-          id
-        }
-      }`;
 
-        // fetch the graphql with the necessary headers, including the issue variable in the JSON Body
-        // const response = await fetch("/graphql", {
-        //   method: "POST",
-        //   headers: { "Content-type": "application/json" },
-        //   body: JSON.stringify({ query, variables: { issue } })
-        // });
-        // this.loadData();
-
-        // the fetch function replaces the func above
-        const data = await graphQLFetch(query, { issue });
-        if (data) {
-            this.loadData();
-        }
-    }
 
 
     async closeIssue(index) {
@@ -102,7 +87,7 @@ export default class IssueList extends React.Component {
         }
       }`;
         const { issues } = this.state;
-        const data = await graphQLFetch(query, { id: issues[index].id });
+        const data = await graphQLFetch(query, { id: issues[index].id }, this.showError);
         if (data) {
             this.setState((prevState) => {
                 // make a copy of the previous state
@@ -126,9 +111,9 @@ export default class IssueList extends React.Component {
         const { location: { pathname, search }, history } = this.props;
 
         const { id } = issues[index];
-        const data = await graphQLFetch(query, { id });
+        const data = await graphQLFetch(query, { id }, this.showError);
 
-        if (data && issue.issueDelete) {
+        if (data && data.issueDelete) {
             this.setState((prevState) => {
                 // make a copy of the previous state
                 const newList = [...prevState.issues];
@@ -142,6 +127,7 @@ export default class IssueList extends React.Component {
                 // update state without deleted issue
                 newList.splice(index, 1);
 
+                this.showSuccess(`Deleted issue ${id} successfully.`);
                 // return the new issuelist to setState
                 return { issues: newList };
             });
@@ -151,20 +137,46 @@ export default class IssueList extends React.Component {
 
     }
 
+    showSuccess(message) {
+        this.setState({
+            toastVisible: true, toastMessage: message, toastType: 'success'
+        })
+    }
+    showError(message) {
+        this.setState({
+            toastVisible: true, toastMessage: message, toastType: 'danger'
+        })
+    }
+    dismissToast() {
+        this.setState({ toastVisible: false })
+    }
+
     render() {
         const { issues } = this.state;
         const { match } = this.props;
+        const { toastVisible, toastMessage, toastType } = this.state;
+
 
         return (
             <React.Fragment>
-                <h1>Issue Tracker</h1>
-                <IssueFilter />
-                <hr />
+                <Card>
+                    <Card.Header>
+                        <Card.Title>Filter</Card.Title>
+                    </Card.Header>
+                    <Card.Body>
+                        <IssueFilter />
+                    </Card.Body>
+                </Card>
                 <IssueTable issues={issues} closeIssue={this.closeIssue} deleteIssue={this.deleteIssue} />
-                <hr />
-                <IssueAdd createIssue={this.createIssue} />
-                <hr />
+
+
                 <Route path={`${match.path}/:id`} component={IssueDetail} />
+
+                <Toast
+                    showing={toastVisible}
+                    onClose={this.dismissValidation}
+                    variant={toastType}
+                >{toastMessage}</Toast>
             </React.Fragment>
         );
     }

@@ -1,21 +1,32 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
+import { LinkContainer } from 'react-router-bootstrap';
+import { Col, Row, Card, Form, ButtonToolbar, Button, Alert } from 'react-bootstrap';
 import graphQLFetch from './graphQLFetch.js';
 import NumInput from './NumInput.jsx';
 import DateInput from './DateInput.jsx';
 import TextInput from './TextInput.jsx';
+import Toast from './Toast.jsx';
 
 export default class IssueEdit extends React.Component {
     constructor() {
         super();
         this.state = {
             issue: {},
-            invalidFields: {}
+            invalidFields: {},
+            showingValidation: false,
+            toastVisible: false,
+            toastMessage: '',
+            toastType: 'success'
         };
         this.onChange = this.onChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.onValidityChange = this.onValidityChange.bind(this);
+        this.showValidation = this.showValidation.bind(this);
+        this.dismissValidation = this.dismissValidation.bind(this);
+        this.showSuccess = this.showSuccess.bind(this);
+        this.showError = this.showError.bind(this);
+        this.dismissToast = this.dismissToast.bind(this);
     }
 
     componentDidMount() {
@@ -40,6 +51,9 @@ export default class IssueEdit extends React.Component {
 
     async handleSubmit(e) {
         e.preventDefault();
+
+        // show validation on submit, as the validationMessage is checking whether to fill the message
+        this.showValidation();
         const { issue, invalidFields } = this.state;
 
         // count the length of keys in invalidFields object, if so there are invalid fiels
@@ -57,14 +71,8 @@ export default class IssueEdit extends React.Component {
         const data = await graphQLFetch(query, { id, changes });
         if (data) {
             this.setState({ issue: data.issueUpdate });
-            alert('Updated issue successfully');
+            this.showSuccess('Updated issue successfully');
         }
-
-
-
-
-
-
     }
 
     onValidityChange(event, valid) {
@@ -86,16 +94,35 @@ export default class IssueEdit extends React.Component {
 
         let { match: { params: { id } } } = this.props;
         id = parseInt(id);
-        const data = await graphQLFetch(query, { id });
-
-
+        const data = await graphQLFetch(query, { id }, this.showError);
         this.setState({ issue: data ? data.issue : {}, invalidFields: {} });
+    }
 
+    showValidation() {
+        this.setState({ showingValidation: true });
+    }
+    dismissValidation() {
+        this.setState({ showingValidation: false });
+    }
+
+    showSuccess(message) {
+        this.setState({
+            toastVisible: true, toastMessage: message, toastType: 'success'
+        })
+    }
+    showError(message) {
+        this.setState({
+            toastVisible: true, toastMessage: message, toastType: 'danger'
+        })
+    }
+    dismissToast() {
+        this.setState({ toastVisible: false })
     }
 
     render() {
         const { issue: { id } } = this.state;
         const { match: { params: { id: propsId } } } = this.props;
+        const { toastVisible, toastMessage, toastType } = this.state;
         if (id == null) {
             if (propsId != null) {
                 return <h3>{`Issue with ID ${propsId} not found.`}</h3>;
@@ -103,14 +130,14 @@ export default class IssueEdit extends React.Component {
             return null;
         }
 
-        const { invalidFields } = this.state;
+        const { invalidFields, showingValidation } = this.state;
         let validationMessage;
 
-        if (Object.keys(invalidFields).length !== 0) {
+        if (Object.keys(invalidFields).length !== 0 && showingValidation) {
             validationMessage = (
-                <div className="error">
+                <Alert variant="danger" onClose={this.dismissValidation} dismissible>
                     Please correct invalid fields before submitting.
-                </div>
+                </Alert>
             );
         }
 
@@ -119,96 +146,110 @@ export default class IssueEdit extends React.Component {
         const { issue: { created, due } } = this.state;
 
         return (
-            <form onSubmit={this.handleSubmit}>
-                <h3>{`Editing issue: ${id}`}</h3>
-                <table>
-                    <tbody>
-                        <tr>
-                            <td>Created:</td>
-                            <td>{created.toDateString()}</td>
-                        </tr>
-                        <tr>
-                            <td>Status:</td>
-                            <td>
-                                <select name="status" value={status} onChange={this.onChange}>
+            <Card>
+                <Card.Header>
+                    <Card.Title>{`Editing issue: ${id}`}</Card.Title>
+                </Card.Header>
+                <Card.Body>
+                    <Form onSubmit={this.handleSubmit}>
+                        <Form.Group as={Row}>
+                            <Col as={Form.Label} sm={3}>Created</Col>
+                            <Col sm={9}>
+                                <Form.Control readOnly defaultValue={created.toDateString()}>
+
+                                </Form.Control>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col as={Form.Label} sm={3}>Status</Col>
+                            <Col sm={9}>
+                                <Form.Control as="select" name="status" value={status} onChange={this.onChange}>
                                     <option value="New">New</option>
                                     <option value="Assigned">Assigned</option>
                                     <option value="Fixed">Fixed</option>
                                     <option value="Closed">Closed</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Owner:</td>
-                            <td>
-                                <TextInput
+                                </Form.Control>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col as={Form.Label} sm={3}>Owner</Col>
+                            <Col sm={9}>
+                                <Form.Control as={TextInput}
                                     name="owner"
                                     value={owner}
                                     onChange={this.onChange}
-                                    key={id}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Effort:</td>
-                            <td>
-                                <NumInput
+                                    key={id} />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col as={Form.Label} sm={3}>Effort</Col>
+                            <Col sm={9}>
+                                <Form.Control as={NumInput}
                                     name="effort"
                                     value={effort}
                                     onChange={this.onChange}
-                                    key={id}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Due:</td>
-                            <td>
-                                <DateInput
+                                    key={id} />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} feedback={invalidFields.due ? 'error' : null}>
+                            <Col as={Form.Label} sm={3}>Due</Col>
+                            <Col sm={9}>
+                                <Form.Control as={DateInput}
+                                    onValidityChange={this.onValidityChange}
                                     name="due"
                                     value={due}
                                     onChange={this.onChange}
-                                    onValidityChange={this.onValidityChange}
-                                    key={id}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Title:</td>
-                            <td>
-                                <TextInput
-                                    size={50}
+                                    key={id} />
+                                <Form.Control.Feedback />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col as={Form.Label} sm={3}>Title</Col>
+                            <Col sm={9}>
+                                <Form.Control as={TextInput}
                                     name="title"
                                     value={title}
                                     onChange={this.onChange}
-                                    key={id}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Description:</td>
-                            <td>
-                                <TextInput
+                                    key={id} />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col as={Form.Label} sm={3}>Description</Col>
+                            <Col sm={9}>
+                                <Form.Control as={TextInput}
                                     tag="textarea"
-                                    rows={8}
-                                    cols={50}
                                     name="description"
                                     value={description}
                                     onChange={this.onChange}
-                                    key={id}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td />
-                            <td><button type="submit">Submit</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-                {validationMessage}
-                <Link to={`/edit/${id - 1}`}>Prev</Link>
-                {' | '}
-                <Link to={`/edit/${id + 1}`}>Next</Link>
-            </form>
+                                    key={id} />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col smoffset={3} sm={6}>
+                                <ButtonToolbar>
+                                    <Button variation="primary" type="submit">Submit</Button>
+                                    <LinkContainer to="/issues">
+                                        <Button variantion="link">Back</Button>
+                                    </LinkContainer>
+                                </ButtonToolbar>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group>
+                            <Col sm={{ span: 9, offset: 3 }} > {validationMessage}</Col>
+                        </Form.Group>
+                    </Form>
+                </Card.Body>
+                <Card.Footer>
+                    <Link to={`/edit/${id - 1}`}>Prev</Link>
+                    {' | '}
+                    <Link to={`/edit/${id + 1}`}>Next</Link>
+                </Card.Footer>
+                <Toast
+                    showing={toastVisible}
+                    onClose={this.dismissToast}
+                    variant={toastType}
+                >{toastMessage}</Toast>
+            </Card>
         );
     }
 }
