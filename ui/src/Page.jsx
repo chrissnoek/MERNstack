@@ -21,7 +21,10 @@ function NavBar() {
                     <Nav>
                         <IssueAddNavItem />
                         <NavDropdown title={<FiMoreVertical />} id="collasible-nav-dropdown">
-                            <NavDropdown.Item>About</NavDropdown.Item>
+                            <LinkContainer exact to="/about">
+                                <NavDropdown.Item>About
+                            </NavDropdown.Item>
+                            </LinkContainer>
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>

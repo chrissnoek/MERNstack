@@ -1,0 +1,20 @@
+{
+    "env": {
+        "browser": true
+    },
+    "rules": {
+        "import/extentions": [
+            "error",
+            "always",
+            {
+                "ignorePackages": true
+            }
+        ],
+        "quotes": [
+            1,
+            "double"
+        ],
+        "no-console": "off",
+        "react/prop-types": "off"
+    }
+}

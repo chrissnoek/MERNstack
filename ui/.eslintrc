@@ -1,8 +1,5 @@
 {
   "extends": "airbnb-base",
-  "env": {
-    "node": true
-  },
   "rules": {
     "import/extentions": [
       "error",
