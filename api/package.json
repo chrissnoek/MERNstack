@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/chrissnoek/MERNstack#readme",
   "dependencies": {
-    "apollo-server-express": "^2.9.5",
+    "apollo-server-express": "^2.14.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "graphql": "^14.5.8",
